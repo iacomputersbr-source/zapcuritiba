@@ -9,9 +9,9 @@
 <body class="bg-black text-white min-h-screen flex items-center justify-center p-6">
 <div class="max-w-md w-full">
 <div id="step1" class="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl">
-<h1 class="text-4xl font-black mb-2 leading-none">Ativar<br>Licença</h1>
-<p class="text-zinc-400 text-sm mb-6">Insira sua chave ZapCuritiba</p>
-<input id="key" value="ZC-CUR-2026-BATEL-001" class="w-full bg-black border border-zinc-800 p-4 rounded-xl font-mono mb-4 text-center">
+<h1 class="text-4xl font-black mb-2">Ativar<br>Licença</h1>
+<p class="text-zinc-400 text-sm mb-6">Insira sua chave</p>
+<input id="key" value="ZC-CUR-2026-BATEL-001" class="w-full bg-black border border-zinc-800 p-4 rounded-xl font-mono text-center mb-4">
 <button onclick="validar()" id="btn" class="w-full bg-[#25D366] text-black font-black py-4 rounded-xl">VALIDAR CHAVE</button>
 <p id="msg" class="text-xs text-red-400 mt-3 hidden"></p>
 </div>
@@ -19,31 +19,48 @@
 <div id="step2" class="hidden bg-white text-black p-8 rounded-3xl text-center">
 <div class="text-5xl mb-2">✅</div>
 <h2 class="text-2xl font-black mb-1">Licença Validada!</h2>
-<p class="text-zinc-500 text-sm mb-6">Agora conecte o WhatsApp da sua loja</p>
-<div class="bg-zinc-100 p-4 rounded-2xl mb-4">
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=zapcuritiba-demo" class="mx-auto rounded-xl">
-<p class="text-green-600 font-bold text-xs mt-3 animate-pulse">● Aguardando escaneamento...</p>
+<p class="text-zinc-500 text-sm mb-6">Escaneie para conectar seu WhatsApp</p>
+<div id="qrBox" class="bg-zinc-100 p-4 rounded-2xl mb-4 min-h-[280px] flex items-center justify-center">
+<p class="text-zinc-500 animate-pulse">Gerando QR Code real...</p>
 </div>
-<div class="bg-black text-white p-3 rounded-xl text-left mono text-[11px]">
+<div id="status" class="bg-black text-white p-3 rounded-xl text-left font-mono text-[11px]">
 > Licença: <span id="licShow"></span><br>
-> Status: ATIVA<br>
-> Região: Curitiba - PR
+> Status: <span id="connStatus">Aguardando conexão...</span><br>
+> IA: ATIVA 24h
 </div>
-<p class="text-[11px] text-zinc-500 mt-4">Abra WhatsApp > Aparelhos conectados > Conectar aparelho</p>
+<p class="text-[11px] text-zinc-500 mt-4">WhatsApp > Aparelhos conectados > Conectar aparelho</p>
 </div>
 </div>
+
 <script>
+let interval = null;
 function validar(){
-const key=document.getElementById('key').value.trim().toUpperCase();
-const msg=document.getElementById('msg');
-const btn=document.getElementById('btn');
-if(!key.startsWith('ZC-CUR-')){msg.textContent='Chave inválida. Use formato ZC-CUR-2026-...';msg.classList.remove('hidden');return;}
-btn.textContent='Validando...';
-setTimeout(()=>{
-document.getElementById('step1').classList.add('hidden');
-document.getElementById('step2').classList.remove('hidden');
-document.getElementById('licShow').textContent=key;
-},800);
+  const key=document.getElementById('key').value.trim().toUpperCase();
+  if(!key.startsWith('ZC-CUR-')){document.getElementById('msg').textContent='Chave inválida';document.getElementById('msg').classList.remove('hidden');return;}
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+  document.getElementById('licShow').textContent=key;
+  loadQR();
+  interval=setInterval(loadQR, 3000);
+}
+async function loadQR(){
+  try{
+    const res = await fetch('/api/qr');
+    const data = await res.json();
+    const box = document.getElementById('qrBox');
+    const status = document.getElementById('connStatus');
+    if(data.connected){
+      box.innerHTML='<div class="text-center"><div class="text-6xl mb-2">🎉</div><p class="font-black text-green-600 text-xl">WhatsApp Conectado!</p><p class="text-sm text-zinc-600 mt-2">Sua IA já está respondendo 24h</p></div>';
+      status.textContent='CONECTADO - IA RESPONDENDO';
+      status.className='text-green-400 font-bold';
+      clearInterval(interval);
+    } else if(data.qr){
+      box.innerHTML='<img src="'+data.qr+'" class="mx-auto rounded-xl w-[250px] h-[250px]"><p class="text-green-600 font-bold text-xs mt-3 animate-pulse">● Escaneie este QR real agora</p>';
+      status.textContent='QR REAL - Aguardando escaneamento';
+    }
+  }catch(e){
+    document.getElementById('qrBox').innerHTML='<p class="text-red-500 text-sm">Erro ao gerar QR. Recarregue a página.</p>';
+  }
 }
 </script>
 </body>
