@@ -6,44 +6,50 @@
 <title>Ativar - ZapCuritiba</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-black text-white min-h-screen flex items-center justify-center p-4">
-<div class="max-w-sm w-full">
+<body class="bg-[#0a0a0a] text-white min-h-screen flex items-center justify-center p-4">
 
-<div id="step1" class="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl">
-<h1 class="text-4xl font-black mb-2">Ativar<br>Licença</h1>
+<div class="w-full max-w-[380px]">
+
+<!-- PASO 1 -->
+<div id="step1" class="bg-zinc-900 border border-zinc-800 p-8 rounded-[28px]">
+<h1 class="text-4xl font-black leading-none mb-2">Ativar<br>Licença</h1>
 <p class="text-zinc-400 text-sm mb-6">Chave de Curitiba</p>
-<input id="key" value="ZC-CUR-2026-BATEL-001" class="w-full bg-black border border-zinc-800 p-4 rounded-xl font-mono text-center mb-4 uppercase">
+<input id="key" value="ZC-CUR-2026-BATEL-001" class="w-full bg-black border border-zinc-700 p-4 rounded-xl font-mono text-center mb-4 uppercase text-white">
 <button onclick="validar()" class="w-full bg-[#25D366] text-black font-black py-4 rounded-xl">VALIDAR</button>
 <p id="msg" class="text-xs text-red-400 mt-3 hidden"></p>
 </div>
 
-<div id="step2" class="hidden bg-white text-black p-6 rounded-3xl">
-<div class="text-center mb-4">
+<!-- PASO 2 -->
+<div id="step2" class="hidden bg-white text-black rounded-[32px] overflow-hidden shadow-2xl">
+<!-- HEADER -->
+<div class="text-center pt-8 pb-4 px-6">
 <div class="text-5xl">✅</div>
-<h2 class="text-2xl font-black mt-2">Licença Validada!</h2>
-<p class="text-zinc-500 text-sm">Escaneie o QR REAL</p>
+<h2 class="text-[28px] font-black mt-2 leading-tight">Licença<br>Validada!</h2>
+<p class="text-zinc-500 text-[14px] mt-1">Escaneie o QR REAL</p>
 </div>
 
-<!-- QR ARRIBA GRANDE -->
-<div id="qrBox" class="w-full flex flex-col items-center">
-<div class="bg-white border-2 border-black p-3 rounded-2xl w-[300px] h-[300px] flex items-center justify-center">
-<p class="animate-pulse text-sm text-zinc-500">Gerando QR...</p>
+<!-- QR DENTRO DEL FORMATO -->
+<div id="qrBox" class="px-6 pb-2">
+<div class="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 w-full aspect-square flex items-center justify-center overflow-hidden">
+<p class="animate-pulse text-sm text-zinc-400 text-center">Gerando QR Code<br>real...</p>
 </div>
 </div>
 
-<!-- TEXTO ABAJO -->
-<div class="mt-4 text-center">
-<p class="text-green-600 font-black text-sm">● QR REAL - Escaneie agora</p>
+<!-- TEXTO ABAJO DENTRO -->
+<div class="px-6 pb-6 pt-3">
+<div class="text-center">
+<p class="text-[#25D366] font-black text-[13px]">● QR REAL - Escaneie agora</p>
 <p class="text-[11px] text-zinc-400 mt-1">Atualiza a cada 30s automaticamente</p>
 </div>
 
-<div class="mt-5 bg-black text-white p-3 rounded-xl font-mono text-[11px]">
-> Licença: <span id="licShow"></span><br>
-> Status: <span id="connStatus">Aguardando</span><br>
-> IA: ATIVA 24h
+<div class="mt-5 bg-black text-white p-4 rounded-2xl font-mono text-[11px] leading-5">
+> Licença: <span id="licShow" class="text-zinc-300"></span><br>
+> Status: <span id="connStatus" class="text-yellow-400">Aguardando</span><br>
+> IA: <span class="text-green-400">ATIVA 24h</span>
 </div>
 
-<p class="text-[11px] text-zinc-500 mt-3 text-center font-bold">WhatsApp > Aparelhos conectados > Conectar</p>
+<p class="text-[10px] text-zinc-400 mt-4 text-center">WhatsApp > Aparelhos conectados > Conectar aparelho</p>
+</div>
 </div>
 
 </div>
@@ -52,7 +58,11 @@
 let interval=null;
 function validar(){
   const k=document.getElementById('key').value.trim().toUpperCase();
-  if(!k.startsWith('ZC-CUR-')){document.getElementById('msg').textContent='Chave inválida';document.getElementById('msg').classList.remove('hidden');return;}
+  if(!k.startsWith('ZC-CUR-')){
+    document.getElementById('msg').textContent='Chave inválida';
+    document.getElementById('msg').classList.remove('hidden');
+    return;
+  }
   document.getElementById('step1').classList.add('hidden');
   document.getElementById('step2').classList.remove('hidden');
   document.getElementById('licShow').textContent=k;
@@ -66,15 +76,16 @@ async function loadQR(){
     const box=document.getElementById('qrBox');
     const st=document.getElementById('connStatus');
     if(d.connected){
-      box.innerHTML='<div class="text-center py-8"><div class="text-6xl mb-2">🎉</div><p class="font-black text-green-600 text-xl">Conectado!</p><p class="text-sm text-zinc-600">IA respondendo 24h</p></div>';
-      st.textContent='CONECTADO';
+      box.innerHTML='<div class="bg-green-50 border border-green-200 rounded-2xl p-8 w-full aspect-square flex flex-col items-center justify-center"><div class="text-6xl mb-2">🎉</div><p class="font-black text-green-700 text-xl text-center">Conectado!</p><p class="text-sm text-zinc-600 text-center mt-1">IA respondendo 24h</p></div>';
+      st.textContent='CONECTADO - IA ATIVA';
+      st.className='text-green-400 font-bold';
       clearInterval(interval);
     } else if(d.qr){
-      box.innerHTML='<div class="bg-white border-2 border-black p-3 rounded-2xl w-[300px] h-[300px] flex items-center justify-center shadow-lg"><img src="'+d.qr+'" style="width:100%;height:100%;object-fit:contain;display:block;" /></div>';
-      st.textContent='QR REAL - Escaneie';
+      box.innerHTML='<div class="bg-white border border-zinc-200 rounded-2xl p-3 w-full aspect-square flex items-center justify-center overflow-hidden shadow-sm"><img src="'+d.qr+'" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;" /></div>';
+      st.textContent='QR REAL - Aguardando escaneamento';
     }
   }catch(e){}
 }
 </script>
 </body>
-  </html>
+</html>
