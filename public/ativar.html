@@ -6,68 +6,75 @@
 <title>Ativar - ZapCuritiba</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-black text-white min-h-screen flex items-center justify-center p-6">
-<div class="max-w-md w-full">
+<body class="bg-black text-white min-h-screen flex items-center justify-center p-4">
+<div class="max-w-sm w-full">
+
 <div id="step1" class="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl">
 <h1 class="text-4xl font-black mb-2">Ativar<br>Licença</h1>
-<p class="text-zinc-400 text-sm mb-6">Insira sua chave de Curitiba</p>
+<p class="text-zinc-400 text-sm mb-6">Chave de Curitiba</p>
 <input id="key" value="ZC-CUR-2026-BATEL-001" class="w-full bg-black border border-zinc-800 p-4 rounded-xl font-mono text-center mb-4 uppercase">
-<button onclick="validar()" class="w-full bg-[#25D366] text-black font-black py-4 rounded-xl hover:bg-[#20bd5a]">VALIDAR CHAVE</button>
+<button onclick="validar()" class="w-full bg-[#25D366] text-black font-black py-4 rounded-xl">VALIDAR</button>
 <p id="msg" class="text-xs text-red-400 mt-3 hidden"></p>
 </div>
 
-<div id="step2" class="hidden bg-white text-black p-8 rounded-3xl text-center">
-<div class="text-5xl mb-2">✅</div>
-<h2 class="text-2xl font-black mb-1">Licença Validada!</h2>
-<p class="text-zinc-500 text-sm mb-6">Escaneie o QR REAL abaixo</p>
-<div id="qrBox" class="bg-zinc-100 p-4 rounded-2xl mb-4 min-h-[340px] flex items-center justify-center">
-<p class="text-zinc-500 animate-pulse text-sm">Gerando QR Code real...<br>quadrado perfeito</p>
+<div id="step2" class="hidden bg-white text-black p-6 rounded-3xl">
+<div class="text-center mb-4">
+<div class="text-5xl">✅</div>
+<h2 class="text-2xl font-black mt-2">Licença Validada!</h2>
+<p class="text-zinc-500 text-sm">Escaneie o QR REAL</p>
 </div>
-<div id="status" class="bg-black text-white p-3 rounded-xl text-left font-mono text-[11px] leading-4">
-> Licença: <span id="licShow"></span><br>
-> Status: <span id="connStatus">Aguardando...</span><br>
-> IA: ATIVA 24h - Curitiba
-</div>
-<p class="text-[11px] text-zinc-500 mt-4 font-bold">WhatsApp > Aparelhos conectados > Conectar aparelho</p>
+
+<!-- QR ARRIBA GRANDE -->
+<div id="qrBox" class="w-full flex flex-col items-center">
+<div class="bg-white border-2 border-black p-3 rounded-2xl w-[300px] h-[300px] flex items-center justify-center">
+<p class="animate-pulse text-sm text-zinc-500">Gerando QR...</p>
 </div>
 </div>
 
+<!-- TEXTO ABAJO -->
+<div class="mt-4 text-center">
+<p class="text-green-600 font-black text-sm">● QR REAL - Escaneie agora</p>
+<p class="text-[11px] text-zinc-400 mt-1">Atualiza a cada 30s automaticamente</p>
+</div>
+
+<div class="mt-5 bg-black text-white p-3 rounded-xl font-mono text-[11px]">
+> Licença: <span id="licShow"></span><br>
+> Status: <span id="connStatus">Aguardando</span><br>
+> IA: ATIVA 24h
+</div>
+
+<p class="text-[11px] text-zinc-500 mt-3 text-center font-bold">WhatsApp > Aparelhos conectados > Conectar</p>
+</div>
+
+</div>
+
 <script>
-let interval = null;
+let interval=null;
 function validar(){
-  const key=document.getElementById('key').value.trim().toUpperCase();
-  if(!key.startsWith('ZC-CUR-')){
-    document.getElementById('msg').textContent='Chave inválida. Use ZC-CUR-...';
-    document.getElementById('msg').classList.remove('hidden');
-    return;
-  }
+  const k=document.getElementById('key').value.trim().toUpperCase();
+  if(!k.startsWith('ZC-CUR-')){document.getElementById('msg').textContent='Chave inválida';document.getElementById('msg').classList.remove('hidden');return;}
   document.getElementById('step1').classList.add('hidden');
   document.getElementById('step2').classList.remove('hidden');
-  document.getElementById('licShow').textContent=key;
+  document.getElementById('licShow').textContent=k;
   loadQR();
-  interval=setInterval(loadQR, 3000);
+  interval=setInterval(loadQR,3000);
 }
 async function loadQR(){
   try{
-    const res = await fetch('/api/qr?_='+Date.now());
-    const data = await res.json();
-    const box = document.getElementById('qrBox');
-    const status = document.getElementById('connStatus');
-    if(data.connected){
-      box.innerHTML='<div class="text-center"><div class="text-6xl mb-2">🎉</div><p class="font-black text-green-600 text-xl">WhatsApp Conectado!</p><p class="text-sm text-zinc-600 mt-2">Sua IA já está respondendo 24h sem parar!</p><p class="text-xs text-zinc-400 mt-1">Pode fechar esta página</p></div>';
-      status.textContent='CONECTADO - IA RESPONDENDO AUTOMÁTICO';
-      status.className='text-green-400 font-bold';
+    const r=await fetch('/api/qr?_='+Date.now());
+    const d=await r.json();
+    const box=document.getElementById('qrBox');
+    const st=document.getElementById('connStatus');
+    if(d.connected){
+      box.innerHTML='<div class="text-center py-8"><div class="text-6xl mb-2">🎉</div><p class="font-black text-green-600 text-xl">Conectado!</p><p class="text-sm text-zinc-600">IA respondendo 24h</p></div>';
+      st.textContent='CONECTADO';
       clearInterval(interval);
-    } else if(data.qr){
-      box.innerHTML='<div class="bg-white p-3 rounded-xl shadow-sm mx-auto" style="width:280px; height:280px; display:flex; align-items:center; justify-content:center;"><img src="'+data.qr+'" style="width:100%; height:100%; object-fit:contain; display:block;" alt="QR Real"></div><p class="text-green-600 font-bold text-xs mt-3 animate-pulse">● QR QUADRADO REAL - Escaneie agora</p><p class="text-[10px] text-zinc-400 mt-1">Atualiza a cada 30s</p>';
-      status.textContent='QR REAL QUADRADO - Aguardando escaneamento';
-    } else {
-      box.innerHTML='<p class="text-zinc-500 text-sm animate-pulse">Gerando QR... aguarde 3s<br>Se não aparecer, recarregue</p>';
+    } else if(d.qr){
+      box.innerHTML='<div class="bg-white border-2 border-black p-3 rounded-2xl w-[300px] h-[300px] flex items-center justify-center shadow-lg"><img src="'+d.qr+'" style="width:100%;height:100%;object-fit:contain;display:block;" /></div>';
+      st.textContent='QR REAL - Escaneie';
     }
-  }catch(e){
-    console.log(e);
-  }
+  }catch(e){}
 }
 </script>
 </body>
-</html>
+  </html>
